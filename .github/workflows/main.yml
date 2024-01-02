@@ -1,0 +1,18 @@
+name: Sync Files to Server
+
+on: [push]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Copy SSH key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY_POP_OS }}" >> ./id_rsa
+          chmod 600 ./id_rsa
+
+      - name: Deploy
+        run: scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ./id_rsa ./* root@23.88.54.223:/root/laravel-octane-roadrunner
