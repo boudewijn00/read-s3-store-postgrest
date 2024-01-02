@@ -2,12 +2,25 @@ name: Sync Files to Server
 
 on: [push]
 
+permissions:
+  contents: read
+
 jobs:
   sync:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14.x'
+          cache: 'npm'
+
+      - name: npm install
+        run: |
+          npm install
 
       - name: Copy SSH key
         run: |
@@ -17,4 +30,7 @@ jobs:
       - name: Deploy
         run: |
           scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ./id_rsa ./* root@23.88.54.223:/root/read-s3-store-postgrest
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ./id_rsa root@23.88.54.223 && cd /root/read-s3-store-postgrest && npm install
+
+      - name: ssh into server
+        run: |
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ./id_rsa root@23.88.54.223
