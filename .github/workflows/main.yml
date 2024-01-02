@@ -35,3 +35,4 @@ jobs:
           script: |
             cd /root/read-s3-store-postgrest
             npm install
+            pm2 restart all
