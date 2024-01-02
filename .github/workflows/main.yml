@@ -29,4 +29,4 @@ jobs:
       - name: SSH into server
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ./id_rsa root@23.88.54.223
-          cd /root/read-s3-store-postgrest
+          sudo cd /root/read-s3-store-postgrest
