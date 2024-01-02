@@ -18,10 +18,6 @@ jobs:
           node-version: '14.x'
           cache: 'npm'
 
-      - name: npm install
-        run: |
-          npm install
-
       - name: Copy SSH key
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY_POP_OS }}" >> ./id_rsa
