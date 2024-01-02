@@ -34,4 +34,4 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_POP_OS }}
           script: |
             cd /root/read-s3-store-postgrest
-            ls -la
+            npm install
