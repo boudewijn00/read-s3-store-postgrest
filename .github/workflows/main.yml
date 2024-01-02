@@ -26,7 +26,12 @@ jobs:
         run: |
           scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ./id_rsa ./* root@23.88.54.223:/root/read-s3-store-postgrest
 
-      - name: SSH into server
-        run: |
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ./id_rsa root@23.88.54.223
-          sudo cd /root/read-s3-store-postgrest
+      - name: SSH and navigate to folder
+        uses: appleboy/ssh-action@master
+        with:
+          host: 23.88.54.223
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY_POP_OS }}
+          script: |
+            cd /root/read-s3-store-postgrest
+            ls -la
