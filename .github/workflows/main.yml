@@ -35,4 +35,4 @@ jobs:
           script: |
             cd /root/read-s3-store-postgrest
             npm install
-            pm2 restart ecosystem.config.js --only read-s3-store-postgrest
+            pm2 restart /root/ecosystem.config.js --only read-s3-store-postgrest
