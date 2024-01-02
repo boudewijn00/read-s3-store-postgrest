@@ -15,4 +15,7 @@ jobs:
           chmod 600 ./id_rsa
 
       - name: Deploy
-        run: scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ./id_rsa ./* root@23.88.54.223:/root/read-s3-store-postgrest
+        run: |
+          scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ./id_rsa ./* root@23.88.54.223:/root/read-s3-store-postgrest
+          cd /root/read-s3-store-postgrest
+          npm install
