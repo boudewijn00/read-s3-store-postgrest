@@ -1,0 +1,111 @@
+{
+    "frameworks": [
+        "angular",
+        "astro",
+        "ember",
+        "express",
+        "deno",
+        "django",
+        "fastapi",
+        "fastify",
+        "flutter",
+        "laravel",
+        "symfony",
+        "nestjs",
+        "nextjs",
+        "node.js",
+        "nuxt",
+        "react",
+        "spring",
+        "svelte",
+        "tailwind",
+        "vue",
+        "wordpress",
+        "jquery",
+        "ruby on rails"
+    ],
+    "languages": [
+        "c#",
+        "css",
+        "dart",
+        "go",
+        "html",
+        "java",
+        "javascript",
+        "kotlin",
+        "php",
+        "python",
+        "ruby",
+        "rust",
+        "scala",
+        "swift",
+        "typescript"
+    ],
+    "databases": [
+        "cassandra",
+        "couchdb",
+        "elasticsearch",
+        "firebase",
+        "mariadb",
+        "mongodb",
+        "mysql",
+        "postgresql",
+        "redis",
+        "sqlite"
+    ],
+    "cloud": [
+        "aws",
+        "azure",
+        "digitalocean",
+        "gcp",
+        "heroku",
+        "netlify",
+        "vercel"
+    ],
+    "devops": [
+        "ansible",
+        "docker",
+        "kubernetes",
+        "terraform"
+    ],
+    "message-brokers": [
+        "kafka",
+        "rabbitmq"
+    ],
+    "testing": [
+        "cypress",
+        "jest",
+        "mocha",
+        "puppeteer",
+        "pytest",
+        "selenium",
+        "testcafe"
+    ],
+    "software-development": [
+        "agile",
+        "git",
+        "scrum",
+        "tdd",
+        "ddd",
+        "bdd"
+    ],
+    "api-protocols": [
+        "graphql",
+        "grpc",
+        "rest"
+    ],
+    "monitoring-tools": [
+        "datadog",
+        "grafana",
+        "kibana",
+        "newrelic",
+        "prometheus",
+        "sentry"
+    ],
+    "ci-cd": [
+        "circleci",
+        "github actions",
+        "jenkins",
+        "travis"
+    ]
+}
