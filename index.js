@@ -57,19 +57,23 @@ async function handleSNSMessage(req, resp) {
         return acc;
       }, []);
 
-    for (const item of reduced) {
-        getJobByKey(item.jobKey).then(function(response) {
-            if (response.length === 0) {
-                postJob(item).then(function (response){
-                    console.log(response)
-                }).catch(function (err){
-                    console.log(err)
-                })
-            }
-        }).catch(err => console.log(err))
-    }
-
-    resp.status(200).send();
+      skillsServiceObject.loadSkillsFromFile().then(function (skills){
+        for (const item of reduced) {
+            getJobByKey(item.jobKey).then(function(response) {
+                if (response.length === 0) {
+                    skillsServiceObject.findSkillsInJob(job, skills).then(function (matches){
+                        item.skills = matches;
+                        postJob(item).then(function (response){
+                            console.log(response)
+                        }).catch(function (err){
+                            console.log(err)
+                        })
+                    })
+                }
+            }).catch(err => console.log(err))
+        }
+        resp.status(200).send();
+    });
 }
 
 async function getJobByKey(key) {
@@ -110,6 +114,7 @@ async function postJob(item) {
         salary_type: item.salaryType,
         search_term: item.seachTerm,
         snippet: item.snippet,
+        skills: item.skills,
         state: item.state,
         title: item.title
     }
