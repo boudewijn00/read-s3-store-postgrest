@@ -64,7 +64,7 @@ async function handleSNSMessage(req, resp) {
                     skillsServiceObject.findSkillsInJob(item, skills).then(function (matches){
                         item.skills = matches;
                         postJob(item).then(function (response){
-                            console.log(response)
+                            console.log(response.status)
                         }).catch(function (err){
                             console.log(err)
                         })
