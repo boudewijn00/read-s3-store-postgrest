@@ -61,7 +61,7 @@ async function handleSNSMessage(req, resp) {
         for (const item of reduced) {
             getJobByKey(item.jobKey).then(function(response) {
                 if (response.length === 0) {
-                    skillsServiceObject.findSkillsInJob(job, skills).then(function (matches){
+                    skillsServiceObject.findSkillsInJob(item, skills).then(function (matches){
                         item.skills = matches;
                         postJob(item).then(function (response){
                             console.log(response)
