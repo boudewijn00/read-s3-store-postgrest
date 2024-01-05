@@ -3,7 +3,9 @@ import bodyParser from 'body-parser';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import nodeFetch from 'node-fetch';
 import dotenv from 'dotenv';
+import skillsService from './services/skills.js';
 
+const skillsServiceObject = new skillsService();
 dotenv.config();
 const app = express();
 
@@ -55,9 +57,7 @@ async function handleSNSMessage(req, resp) {
         return acc;
       }, []);
 
-    console.log(reduced.length)
-
-    for (const item of json) {
+    for (const item of reduced) {
         getJobByKey(item.jobKey).then(function(response) {
             if (response.length === 0) {
                 postJob(item).then(function (response){
