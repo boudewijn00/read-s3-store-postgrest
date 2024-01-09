@@ -2,12 +2,12 @@
     "frameworks": [
         "angular",
         "astro",
-        "ember",
         "express",
         "deno",
         "django",
         "fastapi",
         "fastify",
+        "flask",
         "flutter",
         "laravel",
         "symfony",
@@ -60,13 +60,16 @@
         "gcp",
         "heroku",
         "netlify",
-        "vercel"
+        "vercel",
+        "apache",
+        "nginx"
     ],
     "devops": [
         "ansible",
         "docker",
         "kubernetes",
-        "terraform"
+        "terraform",
+        "bash"
     ],
     "message-brokers": [
         "kafka",
@@ -87,12 +90,15 @@
         "scrum",
         "tdd",
         "ddd",
-        "bdd"
+        "bdd",
+        "ci",
+        "cd"
     ],
     "api-protocols": [
         "graphql",
         "grpc",
-        "rest"
+        "rest",
+        "openapi"
     ],
     "monitoring-tools": [
         "datadog",
@@ -107,5 +113,22 @@
         "github actions",
         "jenkins",
         "travis"
+    ],
+    "python": [
+        "pandas",
+        "numpy",
+        "scipy",
+        "matplotlib",
+        "seaborn",
+        "scikit-learn",
+        "tensorflow",
+        "keras",
+        "pytorch",
+        "nltk",
+        "spacy",
+        "streamlit",
+        "dash",
+        "plotly",
+        "jupyter"
     ]
 }
