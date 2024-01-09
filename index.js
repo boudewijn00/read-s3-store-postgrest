@@ -64,13 +64,13 @@ async function handleSNSMessage(req, resp) {
                     skillsServiceObject.findSkillsInJob(item, skills).then(function (matches){
                         item.skills = matches;
                         postJob(item).then(function (response){
-                            console.log(item.jobKey + ' : ' + response.status)
+                            console.log('post job response ' + item.jobKey + ' : ' + response.status)
                         }).catch(function (err){
-                            console.log(item.jobKey + ' : ' + err)
+                            console.log('post job error ' + item.jobKey + ' : ' + err)
                         })
                     })
                 }
-            }).catch(err => console.log(err))
+            }).catch(err => console.log('get job by key error ' + item.jobKey + ' : ' + err))
         }
         resp.status(200).send();
     });
