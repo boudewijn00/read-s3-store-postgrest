@@ -61,9 +61,12 @@ async function handleSNSMessage(req, resp) {
         for (const item of reduced) {
             getJobByKey(item.jobKey).then(function(response) {
                 if (response.status === 200) {
+                    console.log('job already exists ' + item.jobKey)
                     return
                 }
+                
                 console.log('get job by key response ' + item.jobKey + ' : ' + response.status)
+                
                 skillsServiceObject.findSkillsInJob(item, skills).then(function (matches){
                     item.skills = matches;
                     postJob(item).then(function (response){
@@ -74,6 +77,7 @@ async function handleSNSMessage(req, resp) {
                 })
             }).catch(err => console.log('get job by key error ' + item.jobKey + ' : ' + err.message))
         }
+
         resp.status(200).send();
     });
 }
