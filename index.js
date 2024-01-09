@@ -61,12 +61,8 @@ async function handleSNSMessage(req, resp) {
         for (const item of reduced) {
             getJobByKey(item.jobKey).then(function(response) {
                 if (response.length > 0) {
-                    console.log('job already exists ' + item.jobKey)
                     return
                 }
-                
-                console.log('get job by key response ' + item.jobKey + ' : ' + response.length)
-                
                 skillsServiceObject.findSkillsInJob(item, skills).then(function (matches){
                     item.skills = matches;
                     postJob(item).then(function (response){
