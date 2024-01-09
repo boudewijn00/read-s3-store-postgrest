@@ -66,7 +66,7 @@ async function handleSNSMessage(req, resp) {
                         postJob(item).then(function (response){
                             console.log(response.status)
                         }).catch(function (err){
-                            console.log(err)
+                            console.log(item.jobKey + ' ' + err)
                         })
                     })
                 }
