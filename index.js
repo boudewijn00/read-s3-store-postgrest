@@ -89,7 +89,7 @@ async function getJobByKey(key) {
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
     }).catch(err => console.log(err))
     
-    return await response.JSON()
+    return await response.json()
 }
 
 async function postJob(item) {
