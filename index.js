@@ -60,7 +60,7 @@ async function handleSNSMessage(req, resp) {
       skillsServiceObject.loadSkillsFromFile().then(function (skills){
         for (const item of reduced) {
             getJobByKey(item.jobKey).then(function(response) {
-                if (response.status === 200) {
+                if (response.length > 0) {
                     console.log('job already exists ' + item.jobKey)
                     return
                 }
@@ -89,7 +89,7 @@ async function getJobByKey(key) {
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
     }).catch(err => console.log(err))
     
-    return response
+    return await response.JSON()
 }
 
 async function postJob(item) {
