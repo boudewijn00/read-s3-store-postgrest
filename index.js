@@ -60,17 +60,19 @@ async function handleSNSMessage(req, resp) {
       skillsServiceObject.loadSkillsFromFile().then(function (skills){
         for (const item of reduced) {
             getJobByKey(item.jobKey).then(function(response) {
-                if (response.length === 0) {
-                    skillsServiceObject.findSkillsInJob(item, skills).then(function (matches){
-                        item.skills = matches;
-                        postJob(item).then(function (response){
-                            console.log('post job response ' + item.jobKey + ' : ' + response.status)
-                        }).catch(function (err){
-                            console.log('post job error ' + item.jobKey + ' : ' + err)
-                        })
-                    })
+                if (response.status === 200) {
+                    return
                 }
-            }).catch(err => console.log('get job by key error ' + item.jobKey + ' : ' + err))
+                console.log('get job by key response ' + item.jobKey + ' : ' + response.status)
+                skillsServiceObject.findSkillsInJob(item, skills).then(function (matches){
+                    item.skills = matches;
+                    postJob(item).then(function (response){
+                        console.log('post job response ' + item.jobKey + ' : ' + response.status)
+                    }).catch(function (err){
+                        console.log('post job error ' + item.jobKey + ' : ' + err.message)
+                    })
+                })
+            }).catch(err => console.log('get job by key error ' + item.jobKey + ' : ' + err.message))
         }
         resp.status(200).send();
     });
@@ -83,7 +85,7 @@ async function getJobByKey(key) {
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
     }).catch(err => console.log(err))
     
-    return await response.json()
+    return response
 }
 
 async function postJob(item) {
