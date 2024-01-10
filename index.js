@@ -66,7 +66,7 @@ async function handleSNSMessage(req, resp) {
                 skillsServiceObject.findSkillsInJob(item, skills).then(function (matches){
                     item.skills = matches;
                     postJob(item).then(response => response.json()).then(function (response){
-                        console.log('posted job ' + item.jobKey + ' : ' + response)
+                        console.log('posted job response ' + item.jobKey + ' : ' + response.message)
                     }).catch(function (err){
                         console.log('post job error ' + item.jobKey + ' : ' + err.message)
                     })
@@ -95,7 +95,7 @@ async function postJob(item) {
         company_rating: item.companyRating,
         company_review_count: item.companyReviewCount,
         company_overview_link: item.companyOverviewLink,
-        company_id_encrypted: item.companyIdEncrypted,
+        company_id_encrypted: item.companyIdEncrypted || '',
         country: item.country,
         created_date: item.createDate,
         description: item.description,
@@ -109,10 +109,10 @@ async function postJob(item) {
         published_date: item.pubDate,
         remote_work_model_type: item.remoteWorkModelType,
         salary_currency: item.salaryCurrency,
-        salary_min: item.salaryMin,
-        salary_min_yearly: item.salaryMinYearly,
-        salary_max: item.salaryMax,
-        salary_max_yearly: item.salaryMaxYearly,
+        salary_min: Math.trunc(item.salaryMin),
+        salary_min_yearly: Math.trunc(item.salaryMinYearly),
+        salary_max: Math.trunc(item.salaryMax),
+        salary_max_yearly: Math.trunc(item.salaryMaxYearly),
         salary_type: item.salaryType,
         search_term: item.seachTerm,
         snippet: item.snippet,
