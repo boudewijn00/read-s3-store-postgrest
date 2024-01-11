@@ -6,17 +6,13 @@ class Skills {
     
         for (let category in skills) {
             for (let skill in skills[category]) {
-                var keyword = skills[category][skill];
-                var regex = new RegExp(`\\b${keyword}\\b`, 'i');
+                const keyword = skills[category][skill];
+                const regex = new RegExp(`\\b${keyword}\\b`, 'i');
+                const matchPosition = job.description.search(regex);
+                const result = matchPosition >= 0 ? job.description.substring(matchPosition, matchPosition + keyword.length) : null;
 
-                // Find the position of the first match in the searchString
-                var matchPosition = job.description.search(regex);
-
-                // Return the result
-                var result = matchPosition >= 0 ? job.description.substring(matchPosition, matchPosition + keyword.length) : null;
-                
                 if (result){
-                    matches.push(result);
+                    matches.push(result.toLowerCase());
                 }
             }
         }
