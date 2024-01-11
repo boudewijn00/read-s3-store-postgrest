@@ -21,7 +21,7 @@ skillsServiceObject.loadSkillsFromFile().then(function (skills){
     for (const job of json) {
         skillsServiceObject.findSkillsInJob(job, skills).then(function (merged){
             patchJob(job, merged).then(function (response){
-                console.log(response)
+                console.log(job.job_key + ' ' + response.status)
             }).catch(function (err){
                 console.log(err)
             });   

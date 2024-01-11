@@ -6,18 +6,22 @@ class Skills {
     
         for (let category in skills) {
             for (let skill in skills[category]) {
-                const regex = new RegExp(skills[category][skill], 'gi');
-                const result = job.description.match(regex);
-                if (result) {
-                    const unique = result ? Array.from(new Set(result.map(match => match.toLowerCase()))) : [];
-                    matches.push(unique);
+                var keyword = skills[category][skill];
+                var regex = new RegExp(`\\b${keyword}\\b`, 'i');
+
+                // Find the position of the first match in the searchString
+                var matchPosition = job.description.search(regex);
+
+                // Return the result
+                var result = matchPosition >= 0 ? job.description.substring(matchPosition, matchPosition + keyword.length) : null;
+                
+                if (result){
+                    matches.push(result);
                 }
             }
         }
     
-        const merged = [].concat.apply([], matches);
-    
-        return merged;
+        return matches;
     }
 
     async loadSkillsFromFile() {
