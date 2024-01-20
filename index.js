@@ -39,43 +39,103 @@ async function handleSNSMessage(req, resp) {
         },
     });
 
+    const bucket = s3.bucket.name;
+    const key = s3.object.key;
+    const decodedKey = decodeURIComponent(key.replace(/\+/g, ' '));
     const { Body } = await client.send(new GetObjectCommand({
-        Bucket: s3.bucket.name,
-        Key: s3.object.key,
+        Bucket: bucket,
+        Key: decodedKey,
     }));
 
     const contents = await Body.transformToString();
     const json = await JSON.parse(contents);
 
-    const map = new Map();
-    const reduced = json.reduce((acc, item) => {
+    if (key.includes('gumroad')) {
+        for (const item of json) {
+            getGumroadProductById(item.id).then(function(response) {
+                if (response.length > 0) {
+                    return
+                }
+
+                postGumroadProduct(item).then(function (response){
+                    console.log('posted gumroad product response ' + item.id)
+                }).catch(function (err){
+                    console.log('post gumroad product error ' + item.id)
+                })
+            }).catch(err => console.log(err))
+        }
+
+        resp.status(200).send();
+    } else if (key.includes('leanpub')) {
+        for (const item of json) {
+            getLeanpubById(item.id).then(function(response) {
+                if (response.length > 0) {
+                    return
+                }
+
+                postLeanpub(item).then(function (response){
+                    console.log('posted leanpub response ' + item.id)
+                }).catch(function (err){
+                    console.log('post leanpub error ' + item.id)
+                })
+            }).catch(err => console.log(err))
+        }
+
+        resp.status(200).send();
+    } else if (key.includes('indeed')) {
+        const map = new Map();
+        const reduced = json.reduce((acc, item) => {
         if (!map.has(item['jobKey'])) {
           map.set(item['jobKey'], true);
           acc.push(item);
         }
 
         return acc;
-      }, []);
+        }, []);
 
-      skillsServiceObject.loadSkillsFromFile().then(function (skills){
-        for (const item of reduced) {
-            getJobByKey(item.jobKey).then(function(response) {
-                if (response.length > 0) {
-                    return
-                }
-                skillsServiceObject.findSkillsInJob(item, skills).then(function (matches){
-                    item.skills = matches;
-                    postJob(item).then(response => response.json()).then(function (response){
-                        console.log('posted job response ' + item.jobKey + ' : ' + response.message)
-                    }).catch(function (err){
-                        console.log('post job error ' + item.jobKey + ' : ' + err.message)
+        skillsServiceObject.loadSkillsFromFile().then(function (skills){
+            for (const item of reduced) {
+                getJobByKey(item.jobKey).then(function(response) {
+                    if (response.length > 0) {
+                        return
+                    }
+                    skillsServiceObject.findSkillsInJob(item, skills).then(function (matches){
+                        item.skills = matches;
+                        postJob(item).then(response => response.json()).then(function (response){
+                            console.log('posted job response ' + item.jobKey + ' : ' + response.message)
+                        }).catch(function (err){
+                            console.log('post job error ' + item.jobKey + ' : ' + err.message)
+                        })
                     })
-                })
-            }).catch(err => console.log('get job by key error ' + item.jobKey + ' : ' + err.message))
-        }
+                }).catch(err => console.log('get job by key error ' + item.jobKey + ' : ' + err.message))
+            }
 
+            resp.status(200).send();
+        });
+    } else {
         resp.status(200).send();
-    });
+    }
+
+}
+
+async function getLeanpubById(id) {
+    const url = process.env.POSTGREST_HOST + '/leanpubid=eq.' + id
+    const response = await nodeFetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
+    }).catch(err => console.log(err))
+    
+    return await response.json()
+}
+
+async function getGumroadProductById(id) {
+    const url = process.env.POSTGREST_HOST + '/gumroad?product_id=eq.' + id
+    const response = await nodeFetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
+    }).catch(err => console.log(err))
+    
+    return await response.json()
 }
 
 async function getJobByKey(key) {
@@ -86,6 +146,54 @@ async function getJobByKey(key) {
     }).catch(err => console.log(err))
     
     return await response.json()
+}
+
+async function postLeanpub(item) {
+    const stringify = JSON.stringify(item)
+    const url = process.env.POSTGREST_HOST + '/leanpub'
+    const response = await nodeFetch(url, {
+        method: 'POST',
+        body: stringify,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
+    }).catch(function (err){
+        console.log(err)
+    })
+
+    return response
+}
+
+async function postGumroadProduct(item) {
+    const payload = {
+        "attributes": item.attributes,
+        "bundle_products": item.bundle_products,
+        "currency_code": item.currency_code,
+        "description": item.description_html,
+        "free_trial": item.free_trial,
+        "price_cents": item.price_cents,
+        "product_id": item.id,
+        "product_name": item.name,
+        "rating_counts": item.rating_counts,
+        "refund_policy": item.refund_policy,
+        "sales_count": item.sales_count,
+        "seller_name": item.seller_name,
+        "seller_id": item.seller_id,
+        "seller_profile_url": item.seller_profile_url,
+        "summary": item.summary,
+        "thumbnail_url": item.thumbnail_url,
+        "url": item.url
+    }
+
+    const stringify = JSON.stringify(payload)
+    const url = process.env.POSTGREST_HOST + '/gumroad'
+    const response = await nodeFetch(url, {
+        method: 'POST',
+        body: stringify,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
+    }).catch(function (err){
+        console.log(err)
+    })
+
+    return response
 }
 
 async function postJob(item) {
