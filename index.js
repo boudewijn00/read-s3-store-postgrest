@@ -49,77 +49,47 @@ async function handleSNSMessage(req, resp) {
 
     const contents = await Body.transformToString();
     const json = await JSON.parse(contents);
+    let table = '';
 
     if (key.includes('gumroad')) {
-        for (const item of json) {
-            getGumroadProductById(item.id).then(function(response) {
-                if (response.length > 0) {
-                    return
-                }
-
-                postGumroadProduct(item).then(function (response){
-                    console.log('posted gumroad product response ' + item.id)
-                }).catch(function (err){
-                    console.log('post gumroad product error ' + item.id)
-                })
-            }).catch(err => console.log(err))
-        }
-
-        resp.status(200).send();
+        table = 'gumroad';
     } else if (key.includes('leanpub')) {
-        for (const item of json) {
-            getLeanpubById(item.id).then(function(response) {
-                if (response.length > 0) {
-                    return
-                }
-
-                postLeanpub(item).then(function (response){
-                    console.log('posted leanpub response ' + item.id)
-                }).catch(function (err){
-                    console.log('post leanpub error ' + item.id)
-                })
-            }).catch(err => console.log(err))
-        }
-
-        resp.status(200).send();
+        table = 'leanpub';
     } else if (key.includes('indeed')) {
         const map = new Map();
-        const reduced = json.reduce((acc, item) => {
-        if (!map.has(item['jobKey'])) {
-          map.set(item['jobKey'], true);
-          acc.push(item);
-        }
-
-        return acc;
-        }, []);
-
-        skillsServiceObject.loadSkillsFromFile().then(function (skills){
-            for (const item of reduced) {
-                getJobByKey(item.jobKey).then(function(response) {
-                    if (response.length > 0) {
-                        return
-                    }
-                    skillsServiceObject.findSkillsInJob(item, skills).then(function (matches){
-                        item.skills = matches;
-                        postJob(item).then(response => response.json()).then(function (response){
-                            console.log('posted job response ' + item.jobKey + ' : ' + response.message)
-                        }).catch(function (err){
-                            console.log('post job error ' + item.jobKey + ' : ' + err.message)
-                        })
-                    })
-                }).catch(err => console.log('get job by key error ' + item.jobKey + ' : ' + err.message))
+        const json = json.reduce((acc, item) => {
+            if (!map.has(item['jobKey'])) {
+                map.set(item['jobKey'], true);
+                acc.push(item);
             }
 
-            resp.status(200).send();
-        });
+            return acc;
+        }, []);
+
+        table = 'indeed';
     } else {
-        resp.status(200).send();
+        resp.status(400).send(); 
     }
 
+    for (const item of json) {
+        getByExternalId(table, item.external_id).then(function(response) {
+            if (response.length > 0) {
+                return
+            }
+
+            postItem(table, item).then(function (){
+                console.log('posted leanpub response ' + item.external_id)
+            }).catch(function (){
+                console.log('post leanpub error ' + item.external_id)
+            })
+        }).catch(err => console.log(err))
+    }
+
+    resp.status(200).send();
 }
 
-async function getLeanpubById(id) {
-    const url = process.env.POSTGREST_HOST + '/leanpubid=eq.' + id
+async function getByExternalId(table, id) {
+    const url = process.env.POSTGREST_HOST + '/' + table + '?external_id=eq.' + id
     const response = await nodeFetch(url, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
@@ -128,14 +98,18 @@ async function getLeanpubById(id) {
     return await response.json()
 }
 
-async function getGumroadProductById(id) {
-    const url = process.env.POSTGREST_HOST + '/gumroad?product_id=eq.' + id
+async function postItem(table, item) {
+    const stringify = JSON.stringify(item)
+    const url = process.env.POSTGREST_HOST + '/' + table
     const response = await nodeFetch(url, {
-        method: 'GET',
+        method: 'POST',
+        body: stringify,
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
-    }).catch(err => console.log(err))
-    
-    return await response.json()
+    }).catch(function (err){
+        console.log(err)
+    })
+
+    return response
 }
 
 async function getJobByKey(key) {
@@ -148,19 +122,7 @@ async function getJobByKey(key) {
     return await response.json()
 }
 
-async function postLeanpub(item) {
-    const stringify = JSON.stringify(item)
-    const url = process.env.POSTGREST_HOST + '/leanpub'
-    const response = await nodeFetch(url, {
-        method: 'POST',
-        body: stringify,
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
-    }).catch(function (err){
-        console.log(err)
-    })
 
-    return response
-}
 
 async function postGumroadProduct(item) {
     const payload = {
