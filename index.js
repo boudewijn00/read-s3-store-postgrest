@@ -5,12 +5,11 @@ import nodeFetch from 'node-fetch';
 import dotenv from 'dotenv';
 import skillsService from './services/skills.js';
 
-const skillsServiceObject = new skillsService();
 dotenv.config();
 const app = express();
 
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('read-s3-store-postgrest servce is running');
 });
 
 app.post('/', bodyParser.text(), handleSNSMessage);
@@ -49,6 +48,7 @@ async function handleSNSMessage(req, resp) {
 
     const contents = await Body.transformToString();
     const json = await JSON.parse(contents);
+    let results = json;
     let table = '';
 
     if (key.includes('gumroad')) {
@@ -57,9 +57,9 @@ async function handleSNSMessage(req, resp) {
         table = 'leanpub';
     } else if (key.includes('indeed')) {
         const map = new Map();
-        const json = json.reduce((acc, item) => {
-            if (!map.has(item['jobKey'])) {
-                map.set(item['jobKey'], true);
+        results = json.reduce((acc, item) => {
+            if (!map.has(item['external_id'])) {
+                map.set(item['external_id'], true);
                 acc.push(item);
             }
 
@@ -71,16 +71,16 @@ async function handleSNSMessage(req, resp) {
         resp.status(400).send(); 
     }
 
-    for (const item of json) {
+    for (const item of results) {
         getByExternalId(table, item.external_id).then(function(response) {
             if (response.length > 0) {
                 return
             }
 
             postItem(table, item).then(function (){
-                console.log('posted leanpub response ' + item.external_id)
+                console.log('posted item response ' + item.external_id)
             }).catch(function (){
-                console.log('post leanpub error ' + item.external_id)
+                console.log('post item error ' + item.external_id)
             })
         }).catch(err => console.log(err))
     }
@@ -101,98 +101,6 @@ async function getByExternalId(table, id) {
 async function postItem(table, item) {
     const stringify = JSON.stringify(item)
     const url = process.env.POSTGREST_HOST + '/' + table
-    const response = await nodeFetch(url, {
-        method: 'POST',
-        body: stringify,
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
-    }).catch(function (err){
-        console.log(err)
-    })
-
-    return response
-}
-
-async function getJobByKey(key) {
-    const url = process.env.POSTGREST_HOST + '/indeed?job_key=eq.' + key
-    const response = await nodeFetch(url, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
-    }).catch(err => console.log(err))
-    
-    return await response.json()
-}
-
-
-
-async function postGumroadProduct(item) {
-    const payload = {
-        "attributes": item.attributes,
-        "bundle_products": item.bundle_products,
-        "currency_code": item.currency_code,
-        "description": item.description_html,
-        "free_trial": item.free_trial,
-        "price_cents": item.price_cents,
-        "product_id": item.id,
-        "product_name": item.name,
-        "rating_counts": item.rating_counts,
-        "refund_policy": item.refund_policy,
-        "sales_count": item.sales_count,
-        "seller_name": item.seller_name,
-        "seller_id": item.seller_id,
-        "seller_profile_url": item.seller_profile_url,
-        "summary": item.summary,
-        "thumbnail_url": item.thumbnail_url,
-        "url": item.url
-    }
-
-    const stringify = JSON.stringify(payload)
-    const url = process.env.POSTGREST_HOST + '/gumroad'
-    const response = await nodeFetch(url, {
-        method: 'POST',
-        body: stringify,
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.POSTGREST_TOKEN },
-    }).catch(function (err){
-        console.log(err)
-    })
-
-    return response
-}
-
-async function postJob(item) {
-    const payload = {
-        apply_count: item.applyCount,
-        company: item.company,
-        company_rating: item.companyRating,
-        company_review_count: item.companyReviewCount,
-        company_overview_link: item.companyOverviewLink,
-        company_id_encrypted: item.companyIdEncrypted || '',
-        country: item.country,
-        created_date: item.createDate,
-        description: item.description,
-        expired: item.expired,
-        formatted_relative_time: item.formattedRelativeTime,
-        job_key: item.jobKey,
-        job_card_requirements_model: item.jobCardRequirementsModel,
-        location: item.location,
-        more_loc_url: item.moreLocUrl,
-        postal: item.postal,
-        published_date: item.pubDate,
-        remote_work_model_type: item.remoteWorkModelType,
-        salary_currency: item.salaryCurrency,
-        salary_min: Math.trunc(item.salaryMin),
-        salary_min_yearly: Math.trunc(item.salaryMinYearly),
-        salary_max: Math.trunc(item.salaryMax),
-        salary_max_yearly: Math.trunc(item.salaryMaxYearly),
-        salary_type: item.salaryType,
-        search_term: item.seachTerm,
-        snippet: item.snippet,
-        skills: item.skills,
-        state: item.state,
-        title: item.title
-    }
-
-    const stringify = JSON.stringify(payload)
-    const url = process.env.POSTGREST_HOST + '/indeed'
     const response = await nodeFetch(url, {
         method: 'POST',
         body: stringify,
