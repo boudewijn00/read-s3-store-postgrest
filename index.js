@@ -3,7 +3,6 @@ import bodyParser from 'body-parser';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import nodeFetch from 'node-fetch';
 import dotenv from 'dotenv';
-import skillsService from './services/skills.js';
 
 dotenv.config();
 const app = express();
